@@ -100,3 +100,27 @@ it("should remove 1 point for an incorrect guess",function(done){
 
 
 });
+
+it("should correctly build the leaderboard",function(done){
+	var client = io.connect(socketURL,options);
+
+	client.on('connect',function(data){
+		client.emit('login',"manola");
+	});
+
+	client.on("valid login",function(data){
+		client.emit("guess",{word: Word.current});
+	});
+
+	client.on("leaderboard",function(data){
+		data.leaderboard.should.eql([
+			{username: "juanito", score: 10},
+			{username: "manola", score: 10},
+			{username: "pedrito", score: 0},
+			{username: "manolo", score: -1},
+
+		]);
+		done();
+	});
+
+})
