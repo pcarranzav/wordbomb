@@ -37,14 +37,16 @@ var Word = {
   },
 
   check: function(word){
+  	
   	if(this.all.search(word) == -1){
   		return false;
   	}
-  	for(c in current_letters){
-  		var ind = word.indexOf(c);
+  	word = word.split("");
+  	for(c in this.current_letters){
+  		var ind = word.indexOf(this.current_letters[c]);
   		if(ind == -1)
   			return false;
-  		word = word.splice(ind,1);
+  		word.splice(ind,1);
   	}
   	return true;
   },

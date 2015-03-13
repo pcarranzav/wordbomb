@@ -31,6 +31,8 @@ var startWordChangeInterval = function() {
     io.emit("word change",{
       letters: Word.current_letters
     });
+    console.log(Word.current);
+    console.log(Word.current_letters);
   },60000);
 }
 
@@ -42,11 +44,14 @@ io.on('connection', function (socket) {
 
   // when the client emits 'guess', this listens and executes
   socket.on('guess', function (data) {
+    console.log("someone is guessing " + data.word);
+    console.log("current word is " + Word.current);
     if(Word.check(data.word)){
+      console.log('correct guess');
       clearInterval(wordChangeInterval);
       //Correct guess, should change word and update score and ranking.
       var prev_ranking = User.all[socket.username].ranking;
-      User.all[socket.username] += 10;
+      User.all[socket.username].score += 10;
       Ranking.moveUp(socket.username);
       socket.emit("correct guess",{
         user: User.all[socket.username]
@@ -66,6 +71,7 @@ io.on('connection', function (socket) {
       });
       startWordChangeInterval();
     }else{
+      console.log('incorrect guess');
       var prev_ranking = User.all[socket.username].ranking;
       User.all[socket.username].score -= 1;
       Ranking.moveDown(socket.username);
@@ -85,22 +91,20 @@ io.on('connection', function (socket) {
     // we store the username in the socket session for this client
     socket.username = username;
     // add the client's username to the global list
-    if(!User.all[username]){
+    if(User.all[username] === undefined){
       User.all[username] = {
         name: username,
         score:0, 
         ranking: Ranking.nextIndex()
       };
       Ranking.insert(username);
-      ++numUsers;
       addedUser = true;
       socket.emit('valid login', {
-        numUsers: numUsers,
         user: User.all[username],
-        leaderboard: getLeaderboard()
+        leaderboard: Ranking.getLeaderboard()
       });
     }else{
-      socket.emit('invalid login', {});
+      socket.emit('invalid login');
     }
     
   });
