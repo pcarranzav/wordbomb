@@ -4,6 +4,8 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
+var SortedArray = require("sorted-array");
+
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -14,45 +16,68 @@ app.use(express.static(__dirname + '/public'));
 
 // Gameroom
 
-var users = {};
-var ranking = [];
-var numUsers = 0;
+var User = require('./models/user');
+var Ranking = require('./models/ranking');
+var Word = require('./models/word');
 
-var moveUpRanking = function(username){
-  curr_ranking = users[username].ranking;
-  if(curr_ranking > 0 && users[username].score > users[ranking[curr_ranking-1]].score){
-    flipRanking(username,ranking[curr_ranking-1]);
-    moveUpRanking(username);
-  }
-};
-var moveDownRanking = function(username){
-  curr_ranking = users[username].ranking;
-  if(curr_ranking < ranking.length-1 && users[username].score < users[ranking[curr_ranking+1]].score){
-    flipRanking(username,ranking[curr_ranking-1]);
-    moveDownRanking(username);
-  }
-};
-var flipRanking = function(username1,username2){
-  var temp_ranking = users[username2].ranking;
-  users[username2].ranking = users[username1].ranking;
-  users[username1].ranking = temp_ranking;
 
-  ranking[users[username1].ranking] = username1;
-  ranking[users[username2].ranking] = username2;
+Word.selectNew();
 
+// If there are no correct guesses, we change word every 60 seconds
+var wordChangeInterval = {};
+var startWordChangeInterval = function() {
+  wordChangeInterval = setInterval(function(){
+    Word.selectNew();
+    io.emit("word change",{
+      letters: Word.current_letters
+    });
+  },60000);
 }
+
+startWordChangeInterval();
 
 io.on('connection', function (socket) {
   var addedUser = false;
 
 
-  // when the client emits 'new message', this listens and executes
-  socket.on('new message', function (data) {
-    // we tell the client to execute 'new message'
-    socket.broadcast.emit('new message', {
-      username: socket.username,
-      message: data
-    });
+  // when the client emits 'guess', this listens and executes
+  socket.on('guess', function (data) {
+    if(Word.check(data.word)){
+      clearInterval(wordChangeInterval);
+      //Correct guess, should change word and update score and ranking.
+      var prev_ranking = User.all[socket.username].ranking;
+      User.all[socket.username] += 10;
+      Ranking.moveUp(socket.username);
+      socket.emit("correct guess",{
+        user: User.all[socket.username];
+      });
+      socket.broadcast.emit("guessed",{
+        username: socket.username,
+        word: data.word
+      })
+      if(User.all[socket.username].ranking < 10 && prev_ranking != User.all[socket.username].ranking){
+        io.emit("leaderboard",{
+          leaderboard: Ranking.getLeaderboard()
+        });
+      }
+      Word.selectNew();
+      io.emit("word change",{
+        letters: Word.current_letters
+      });
+      startWordChangeInterval();
+    }else{
+      var prev_ranking = User.all[socket.username].ranking;
+      User.all[socket.username].score -= 1;
+      Ranking.moveDown(socket.username);
+      socket.emit("incorrect guess",{
+        user: User.all[socket.username];
+      });
+      if(prev_ranking < 10 && prev_ranking != User.all[socket.username].ranking){
+        io.emit("leaderboard",{
+          leaderboard: Ranking.getLeaderboard()
+        });
+      }
+    }
   });
 
   // when the client emits 'add user', this listens and executes
@@ -60,60 +85,29 @@ io.on('connection', function (socket) {
     // we store the username in the socket session for this client
     socket.username = username;
     // add the client's username to the global list
-    if(!users[username]){
-      users[username] = {
+    if(!User.all[username]){
+      User.all[username] = {
         name: username,
         score:0, 
-        ranking: ranking.length
+        ranking: Ranking.nextIndex()
       };
-      ranking[ranking.length] = username;
+      Ranking.insert(username);
       ++numUsers;
       addedUser = true;
       socket.emit('valid login', {
         numUsers: numUsers,
-        user: users[username]
+        user: User.all[username],
+        leaderboard: getLeaderboard()
       });
     }else{
-      socket.emit('invalid login', {
-        numUsers: numUsers,
-        user: users[username]
-      });
+      socket.emit('invalid login', {});
     }
     
-    // echo globally (all clients) that a person has connected
-    /*socket.broadcast.emit('user joined', {
-      username: socket.username,
-      numUsers: numUsers
-    });
-    */
   });
 
-  // when the client emits 'typing', we broadcast it to others
-  socket.on('typing', function () {
-    socket.broadcast.emit('typing', {
-      username: socket.username
-    });
-  });
-
-  // when the client emits 'stop typing', we broadcast it to others
-  socket.on('stop typing', function () {
-    socket.broadcast.emit('stop typing', {
-      username: socket.username
-    });
-  });
-
-  // when the user disconnects.. perform this
+  // when the user disconnects
   socket.on('disconnect', function () {
-    // remove the username from global usernames list
-    if (addedUser) {
-      delete usernames[socket.username];
-      --numUsers;
 
-      // echo globally that this client has left
-      socket.broadcast.emit('user left', {
-        username: socket.username,
-        numUsers: numUsers
-      });
-    }
   });
 });
+
