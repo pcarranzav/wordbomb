@@ -1,3 +1,5 @@
+var SortedArray = require("sorted-array");
+var fs = require('fs');
 var shuffle = function(array) {
   var currentIndex = array.length, temporaryValue, randomIndex ;
 
@@ -17,9 +19,11 @@ var shuffle = function(array) {
   return array;
 };
 
+var words_from_file = fs.readFileSync('words').toString().split("\n");
+words_from_file.splice(words_from_file.length-1,1);
 var Word = {
   //We keep words in a sorted array to perform binary search.
-  all: new SortedArray(fs.readFileSync('words').split("\n")),
+  all: new SortedArray([]),
 
   current: "",
 
@@ -27,7 +31,7 @@ var Word = {
 
   selectNew: function(){
   	// Select a random word
-  	this.current = this.all[Math.floor((Math.random() * (this.all.array.length-1)) + 1)];
+  	this.current = this.all.array[Math.floor((Math.random() * (this.all.array.length-1)) + 1)];
   	// And the letters are shuffled
   	this.current_letters = shuffle(this.current.split(""));
   },
@@ -45,5 +49,6 @@ var Word = {
   	return true;
   },
 }
-
+//Hack to add all words without using SortedArray.insert (as it's already sorted)
+Word.all.array = words_from_file;
 module.exports = Word;

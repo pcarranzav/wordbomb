@@ -4,7 +4,7 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
-var SortedArray = require("sorted-array");
+
 
 
 server.listen(port, function () {
@@ -35,7 +35,7 @@ var startWordChangeInterval = function() {
 }
 
 startWordChangeInterval();
-
+console.log("lets go");
 io.on('connection', function (socket) {
   var addedUser = false;
 
@@ -49,12 +49,12 @@ io.on('connection', function (socket) {
       User.all[socket.username] += 10;
       Ranking.moveUp(socket.username);
       socket.emit("correct guess",{
-        user: User.all[socket.username];
+        user: User.all[socket.username]
       });
       socket.broadcast.emit("guessed",{
         username: socket.username,
         word: data.word
-      })
+      });
       if(User.all[socket.username].ranking < 10 && prev_ranking != User.all[socket.username].ranking){
         io.emit("leaderboard",{
           leaderboard: Ranking.getLeaderboard()
@@ -70,7 +70,7 @@ io.on('connection', function (socket) {
       User.all[socket.username].score -= 1;
       Ranking.moveDown(socket.username);
       socket.emit("incorrect guess",{
-        user: User.all[socket.username];
+        user: User.all[socket.username]
       });
       if(prev_ranking < 10 && prev_ranking != User.all[socket.username].ranking){
         io.emit("leaderboard",{
