@@ -60,7 +60,7 @@ io.on('connection', function (socket) {
         username: socket.username,
         word: data.word
       });
-      if(User.all[socket.username].ranking < 10 && prev_ranking != User.all[socket.username].ranking){
+      if(User.all[socket.username].ranking < 10){
         io.emit("leaderboard",{
           leaderboard: Ranking.getLeaderboard()
         });
@@ -78,7 +78,7 @@ io.on('connection', function (socket) {
       socket.emit("incorrect guess",{
         user: User.all[socket.username]
       });
-      if(prev_ranking < 10 && prev_ranking != User.all[socket.username].ranking){
+      if(prev_ranking < 10){
         io.emit("leaderboard",{
           leaderboard: Ranking.getLeaderboard()
         });
@@ -98,10 +98,15 @@ io.on('connection', function (socket) {
         ranking: Ranking.nextIndex()
       };
       Ranking.insert(username);
+      Ranking.moveUp(username);
+      io.emit("leaderboard",{
+        leaderboard: Ranking.getLeaderboard()
+      });
       addedUser = true;
       socket.emit('valid login', {
         user: User.all[username],
-        leaderboard: Ranking.getLeaderboard()
+        leaderboard: Ranking.getLeaderboard(),
+        letters: Word.current_letters
       });
     }else{
       socket.emit('invalid login');

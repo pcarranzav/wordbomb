@@ -2,8 +2,22 @@
 	display: none;
 }
 
-.letters {
-	min-height: 80px;
+ul#letters {
+	list-style-type: none;
+}
+
+ul#letters li {
+	display: inline;
+	padding-right: 20px;
+	font-size: 20px;
+}
+
+#letters {
+	min-height: 40px;
+}
+
+.inputWord {
+	margin-left: 1em;
 }
 
 body {

@@ -16,7 +16,7 @@ var Ranking = {
   moveDown: function(username){
     curr_ranking = User.all[username].ranking;
     if(curr_ranking < this.list.length-1 && User.all[username].score < User.all[this.list[curr_ranking+1]].score){
-      this.flip(username,this.list[curr_ranking-1]);
+      this.flip(username,this.list[curr_ranking+1]);
       this.moveDown(username);
     }
   },
@@ -42,6 +42,7 @@ var Ranking = {
 
   insert: function(username){
     this.list[this.list.length] = username;
+    console.log(this.all);
   }
 };
 
