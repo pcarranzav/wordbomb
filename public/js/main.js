@@ -30,7 +30,7 @@ $(function() {
     "onclick": null,
     "showDuration": "300",
     "hideDuration": "500",
-    "timeOut": "2500",
+    "timeOut": "3500",
     "extendedTimeOut": "1000",
     "showEasing": "swing",
     "hideEasing": "linear",
@@ -73,6 +73,7 @@ $(function() {
       $gamePage.show();
       $currentInput = $inputWord.focus();
       connected = true;
+      toastr.info("Your goal is to correctly guess  a word with the given letters before everyone else. Incorrect guesses cost you 1 point.","Welcome!")
       $('#username').html(username);
       $('#userRanking').html(data.user.ranking+1);
       changeLetters(data.letters);
