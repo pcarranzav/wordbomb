@@ -2,6 +2,10 @@
 	display: none;
 }
 
+.error.page {
+	display: none;
+}
+
 ul#letters {
 	list-style-type: none;
 }

@@ -1,5 +1,5 @@
 $(function() {
-  
+
   // Initialize varibles
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
@@ -172,5 +172,10 @@ $(function() {
     toastr.info(data.username + ' correctly guessed ' + data.word + '.');
   })
 
+  socket.on('disconnect', function(){
+    $('.login.page').hide();
+    $('.game.page').hide();
+    $('.error.page').show();
+  })
 
 });
