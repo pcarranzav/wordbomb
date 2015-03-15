@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wordbomb</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/toastr.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="header">
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <a class="navbar-brand">Wordbomb</a>
+      </div>
+    </nav>
+  </div>
+  <div class="container">
+    <div class="pages">
+      <div class="game page">
+        <div class="row">
+          <div class="gameArea col-sm-6">
+            <div class="lettersArea row">
+              <ul class="letters"></ul>
+            </div>
+            <input class="inputWord row" placeholder="Type here..."/>
+          </div>
+          <div class="col-sm-6">
+            <div class="myScore row">
+              <h2>Your score: <span class="label label-success" id="userScore">0</span></h2>
+            </div>
+            <div class="leaderboard row">
+              <h3>Highscores</h3>
+              <table class="table col-sm-12">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="login page">
+        <div class="form">
+          <h3 class="title">What's your nickname?</h3>
+          <input class="usernameInput" type="text" maxlength="14" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/jquery-1.10.2.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <script src="/js/socket.io.js"></script>
+  <script src="/js/toastr.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

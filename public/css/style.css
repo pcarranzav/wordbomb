@@ -1,0 +1,11 @@
+.game.page {
+	display: none;
+}
+
+.letters {
+	min-height: 80px;
+}
+
+body {
+	padding-top: 70px;
+}
