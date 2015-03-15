@@ -31,7 +31,7 @@ var Ranking = {
   },
 
   getLeaderboard: function(){
-    return this.list.slice(0,10).map(function(val){
+    return this.list.slice(0,5).map(function(val){
       return {username: val, score: User.all[val].score};
     })
   },
@@ -42,7 +42,6 @@ var Ranking = {
 
   insert: function(username){
     this.list[this.list.length] = username;
-    console.log(this.all);
   }
 };
 

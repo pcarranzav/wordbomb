@@ -1,12 +1,5 @@
 $(function() {
-  var FADE_TIME = 150; // ms
-  var TYPING_TIMER_LENGTH = 400; // ms
-  var COLORS = [
-    '#e21400', '#91580f', '#f8a700', '#f78b00',
-    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
-  ];
-
+  
   // Initialize varibles
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
@@ -24,6 +17,8 @@ $(function() {
   var $currentInput = $usernameInput.focus();
 
   var socket = io();
+
+  var timerTimeout;
 
   toastr.options = {
     "closeButton": false,
@@ -78,9 +73,15 @@ $(function() {
       $gamePage.show();
       $currentInput = $inputWord.focus();
       connected = true;
+      $('#username').html(username);
+      $('#userRanking').html(data.user.ranking+1);
       changeLetters(data.letters);
       showLeaderboard(data.leaderboard);
-
+      var timeLeft = 60000 - data.time;
+      $('#timer').html(Math.ceil(timeLeft/1000));
+      if(timerTimeout)
+        clearTimeout(timerTimeout);
+      timerTimeout = setTimeout(decrementTimer,(Math.ceil(timeLeft)-timeLeft));
     });
     
   });
@@ -106,6 +107,12 @@ $(function() {
   function cleanInput (input) {
     return $('<div/>').text(input).text();
   }
+
+  function decrementTimer() {
+    var secs = parseInt($('#timer').html());
+    $('#timer').html(secs-1);
+    timerTimeout = setTimeout(decrementTimer,1000);
+  };
 
   // Keyboard events
 
@@ -139,18 +146,31 @@ $(function() {
   // Whenever the server emits 'new message', update the chat body
   socket.on('word change', function(data){
     changeLetters(data.letters);
+    $('#timer').html('60');
+    if(timerTimeout)
+      clearTimeout(timerTimeout);
+    timerTimeout = setTimeout(decrementTimer,1000);
   });
 
   socket.on('correct guess', function(data){
     changeScore(data.user.score);
+    $('#userRanking').html(data.user.ranking+1);
+    toastr.success("Yeah! You just guessed correctly.");
   });
 
   socket.on('incorrect guess', function(data){
     changeScore(data.user.score);
+    $('#userRanking').html(data.user.ranking+1);
+    toastr.error("Oh no! That's not a valid word.");
   });
 
   socket.on('leaderboard', function(data){
     showLeaderboard(data.leaderboard);
   });
+
+  socket.on('guessed', function(data){
+    toastr.info(data.username + ' correctly guessed ' + data.word + '.');
+  })
+
 
 });

@@ -20,14 +20,21 @@
       <div class="game page">
         <div class="row">
           <div class="gameArea col-sm-6">
+            <div class="row">
+              <div class='col-sm-offset-1'>
+                <h2 id="timer"></h2>
+              </div>
+            </div>
             <div class="lettersArea row">
               <ul id="letters"></ul>
             </div>
-            <input class="inputWord row" placeholder="Type here..."/>
+            <input class="inputWord row" placeholder="Type your guess here..."/>
           </div>
           <div class="col-sm-6">
             <div class="myScore row">
+              <h2 id="username"></h2>
               <h2>Your score: <span class="label label-success" id="userScore">0</span></h2>
+              <h3>Your ranking: <span class="label label-success" id="userRanking">0</span></h3>
             </div>
             <div class="leaderboard row">
               <h3>Highscores</h3>

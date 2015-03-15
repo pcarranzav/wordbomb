@@ -24,6 +24,7 @@ var Word = require('./models/word');
 Word.selectNew();
 
 // If there are no correct guesses, we change word every 60 seconds
+var startTime;
 var wordChangeInterval = {};
 var startWordChangeInterval = function() {
   wordChangeInterval = setInterval(function(){
@@ -33,7 +34,9 @@ var startWordChangeInterval = function() {
     });
     console.log(Word.current);
     console.log(Word.current_letters);
+    startTime = Date.now();
   },60000);
+  startTime = Date.now();
 }
 
 startWordChangeInterval();
@@ -106,7 +109,8 @@ io.on('connection', function (socket) {
       socket.emit('valid login', {
         user: User.all[username],
         leaderboard: Ranking.getLeaderboard(),
-        letters: Word.current_letters
+        letters: Word.current_letters,
+        time: Date.now() - startTime
       });
     }else{
       socket.emit('invalid login');
