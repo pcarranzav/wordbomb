@@ -36,3 +36,5 @@ Some possible improvements
 - Limiting what kind of words can be chosen by the server (some are really really hard to guess)
 - Actually designing the UI
 - Showing which letters a user has already used
+- Better login system (user + password or some API like Google / Facebook)
+- Currently the user's ranking in the UI is updated only when the user sends a guess. Should also update when other user's actions move the user's ranking up/down.
