@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM resin/rpi-raspbian:wheezy-2015-03-25
 RUN apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup | bash -
 RUN apt-get update
